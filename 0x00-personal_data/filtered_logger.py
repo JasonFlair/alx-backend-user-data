@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """filter logger"""
 
-import re
 import logging
+import re
 from typing import List, Tuple
-
 
 
 def splitter(message: str, separator: str) -> List:
@@ -48,16 +47,16 @@ class RedactingFormatter(logging.Formatter):
         super(RedactingFormatter, self).__init__(self.FORMAT)
         # call to logging.Formatter, FORMAT is passed to
         # tell logging.Formatter how records will be printed
-        self.fields= fields
+        self.fields = fields
 
     def format(self, record: logging.LogRecord) -> str:
         """returns a formatted and filtered record
         - implemented call to the format method
           of logging.Formatter, the parent class
-        
+
         - filter_datum performed on the message to censor
         personal details
-        
+
         the censored details is returned
         remember, format() method of logging.Formatter
         is different from format passed to logging.Formatter
