@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 def splitter(message: str, separator: str) -> List:
     """splits message for easy iteration"""
-    splitted = message.split(";")
+    splitted = message.split(separator)
     return splitted
 
 
