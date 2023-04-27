@@ -101,6 +101,7 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
                                    user=username,
                                    password=password)
 
+
 def main() -> None:
     """main function"""
     conn = get_db()
