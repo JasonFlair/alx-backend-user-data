@@ -96,16 +96,28 @@ def get_logger() -> logging.Logger:
 
 def get_db() -> mysql.connector.connection.MySQLConnection:
     """gets database"""
-    return mysql.connector.connect(host=db_host,
+    conn = mysql.connector.connect(host=db_host,
                                    database=data_base,
                                    user=username,
                                    password=password)
+    return conn
 
 
-def main() -> None:
-    """main function"""
-    conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users")
+def main():
+    """
+    main entry point
+    """
+    db = get_db()
+    logger = get_logger()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users;")
+    fields = cursor.column_names
     for row in cursor:
-        print(row[0])
+        message = "".join("{}={}; ".format(k, v) for k, v in zip(fields, row))
+        logger.info(message.strip())
+    cursor.close()
+    db.close()
+
+
+if __name__ == "__main__":
+    main()
