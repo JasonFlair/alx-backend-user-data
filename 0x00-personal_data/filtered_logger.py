@@ -63,10 +63,9 @@ class RedactingFormatter(logging.Formatter):
         """returns a formatted and filtered record
         - implemented call to the format method
           of logging.Formatter, the parent class
-        
         - filter_datum performed on the message to censor
         personal details
-        
+
         the censored details is returned
         remember, format() method of logging.Formatter
         is different from format passed to logging.Formatter
