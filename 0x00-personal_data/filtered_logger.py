@@ -4,7 +4,11 @@
 import re
 import logging
 from typing import List, Tuple
+import os
 
+
+
+PII_FIELDS = ("email", "phone", "ssn", "password", "ip")
 
 
 def splitter(message: str, separator: str) -> List:
@@ -68,3 +72,18 @@ class RedactingFormatter(logging.Formatter):
                                        message,
                                        self.SEPARATOR)
         return filtered_record
+
+
+def get_logger() -> logging.Logger:
+    """gets logger object"""
+    this_logger = logging.Logger("user_data", level=logging.INFO)
+    this_logger.propagate = False
+    
+    # set the streamhandler
+    stream_handler = logging.StreamHandler(stream=None)
+    # use RedactingFormatter's FORMAT variable as format
+    log_format = RedactingFormatter.FORMAT
+    stream_handler.setFormatter = log_format
+    # add the stream handler as a handler for this logger
+    this_logger.addHandler(stream_handler)
+    return this_logger
