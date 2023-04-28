@@ -12,18 +12,24 @@ def hash_password(password: str) -> bytes:
     Args:
         password (str): password to be hashed
     """
-    b = password.encode()
-    hashed = hashpw(b, bcrypt.gensalt())
+    # strings must be encoded before hashing
+    password = password.encode()
+    # hash the password
+    hashed = bcrypt.hashpw(password, bcrypt.gensalt())
     return hashed
 
 
 def is_valid(hashed_password: bytes, password: str) -> bool:
     """
-    Check whether a password is valid
+    confirms a password is valid
     Args:
         hashed_password (bytes): hashed password
         password (str): password in string
     Return:
         bool
     """
-    return bcrypt.checkpw(password.encode(), hashed_password)
+    # strings must be encoded before hashing
+    password = password.encode()
+    validation = bcrypt.checkpw(password, hashed_password)
+    return validation
+    
