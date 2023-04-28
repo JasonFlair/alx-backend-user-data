@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """filter logger"""
 
-import re
 import logging
-from typing import List, Tuple
 import os
+import re
+from typing import List, Tuple
 
+import mysql.connector
 
+PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
-PII_FIELDS = ("email", "phone", "ssn", "password", "ip")
 
 
 def splitter(message: str, separator: str) -> List:
@@ -48,26 +49,25 @@ class RedactingFormatter(logging.Formatter):
     SEPARATOR = ";"
     logging.basicConfig(level=logging.INFO, format=FORMAT)
 
-    def __init__(self, fields):
+    def __init__(self, fields: List[str]):
         super(RedactingFormatter, self).__init__(self.FORMAT)
         # call to logging.Formatter, FORMAT is passed to
         # tell logging.Formatter how records will be printed
-        self.fields= fields
+        self.fields = fields
 
     def format(self, record: logging.LogRecord) -> str:
         """returns a formatted and filtered record
         - implemented call to the format method
           of logging.Formatter, the parent class
-        
         - filter_datum performed on the message to censor
         personal details
-        
+
         the censored details is returned
         remember, format() method of logging.Formatter
         is different from format passed to logging.Formatter
         """
-        message = super().format(record)
-        filtered_record = filter_datum(self.fields,
+        message: str = super().format(record)
+        filtered_record: str = filter_datum(self.fields,
                                        self.REDACTION,
                                        message,
                                        self.SEPARATOR)
@@ -78,7 +78,7 @@ def get_logger() -> logging.Logger:
     """gets logger object"""
     this_logger = logging.Logger("user_data", level=logging.INFO)
     this_logger.propagate = False
-    
+
     # set the streamhandler
     stream_handler = logging.StreamHandler(stream=None)
     # use RedactingFormatter's FORMAT variable as format
@@ -87,3 +87,18 @@ def get_logger() -> logging.Logger:
     # add the stream handler as a handler for this logger
     this_logger.addHandler(stream_handler)
     return this_logger
+
+
+def get_db() -> mysql.connector.connection.MySQLConnection:
+    """gets database"""
+    username = os.getenv("PERSONAL_DATA_DB_USERNAME", "root")
+    password = os.getenv("PERSONAL_DATA_DB_PASSWORD", "root")
+    db_host = os.getenv("PERSONAL_DATA_DB_HOST", "localhost")
+    data_base = os.getenv("PERSONAL_DATA_DB_NAME")
+    conn = mysql.connector.connect(host=db_host,
+                                   database=data_base,
+                                   user=username,
+                                   password=password)
+    return conn
+
+
