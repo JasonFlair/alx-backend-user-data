@@ -11,7 +11,6 @@ import mysql.connector
 PII_FIELDS = ("name", "email", "phone", "ssn", "password")
 
 
-
 def splitter(message: str, separator: str) -> List:
     """splits message for easy iteration"""
     splitted = message.split(separator)
@@ -68,9 +67,9 @@ class RedactingFormatter(logging.Formatter):
         """
         message: str = super().format(record)
         filtered_record: str = filter_datum(self.fields,
-                                       self.REDACTION,
-                                       message,
-                                       self.SEPARATOR)
+                                            self.REDACTION,
+                                            message,
+                                            self.SEPARATOR)
         return filtered_record
 
 
@@ -81,9 +80,9 @@ def get_logger() -> logging.Logger:
 
     # set the streamhandler
     stream_handler = logging.StreamHandler(stream=None)
-    # use RedactingFormatter's FORMAT variable as format
-    log_format = RedactingFormatter.FORMAT
-    stream_handler.setFormatter = log_format
+    # use RedactingFormatter as format
+    log_format = RedactingFormatter(PII_FIELDS)
+    stream_handler.setFormatter(log_format)
     # add the stream handler as a handler for this logger
     this_logger.addHandler(stream_handler)
     return this_logger
@@ -101,6 +100,7 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
                                    password=password)
     return conn
 
+
 def main() -> None:
     """main function"""
     db = get_db()
@@ -109,11 +109,24 @@ def main() -> None:
     cursor.execute("SELECT * FROM users;")
     fields = cursor.column_names
     for row in cursor:
-        message = "".join("{}={}; ".format(k, v) for k, v in zip(fields, row))
-        logger.info(message.strip())
+        message = ";".join("{}={}".format(k, v) for k, v in zip(fields, row))
+        message = message.strip()
+        logger.info(message)
+        """
+        zip(fields, row) creates an iterator that pairs up each field name
+        with the corresponding value from the current row. So, for the first
+        row we could get ('id', 1), ('name', 'John Doe'), etc.
+        "{}={}; ".format(k, v) creates a string with the field name and its
+        corresponding value, separated by an equals sign and a semicolon.
+        So for the first row, we'd get 'id=1 ', 'name=John Doe ', etc.
+        "".join(...) concatenates all of the formatted strings into a
+        single string with each field-value pair separated by a semicolon
+        and a space.
+        So for the first row, we'd get 'id=1; name=John Doe;
+        email=john.doe@example.com;phone=555-123-4567; password=p@ssw0rd; '."""
     cursor.close()
     db.close()
-       
+
 
 if __name__ == "__main__":
     main()
