@@ -1,5 +1,24 @@
 #!/usr/bin/env python3
-"""filter logger"""
+"""filter logger
+    Notes in case of confusion:
+    1) Message however edited is passed to the format specified
+
+    2) The format() method (different from format) of the class overrides the
+    initial format() method that every logger.Formatter object has
+    the format() is always called  every time a record is logged.
+    In the logging system, when a log message is emitted
+    using a logger, it is passed to a LogRecord object.
+
+    3) LogRecord object contains information about the log message,
+    such as the message itself, whatever message is passed is logged
+    and the super format() (from parent) is called on it
+    before our custom format occurs.
+    When you do customlogger.INFO(message), that message is
+    passed as the log record message.
+    So clarifying the argument in the format method,
+    when customlogger.INFO(message) is done,
+    the message is passed to the LogRecord object
+    and passed to the format method."""
 
 import logging
 import os
@@ -55,13 +74,14 @@ class RedactingFormatter(logging.Formatter):
         self.fields = fields
 
     def format(self, record: logging.LogRecord) -> str:
-        """returns a formatted and filtered record
+        """returns a formatted and filtered record/message
+        which is logged when desired.
         - implemented call to the format method
           of logging.Formatter, the parent class
         - filter_datum performed on the message to censor
         personal details
 
-        the censored details is returned
+        the censored details are returned
         remember, format() method of logging.Formatter
         is different from format passed to logging.Formatter
         """
@@ -69,9 +89,9 @@ class RedactingFormatter(logging.Formatter):
         # filter the returned record using the custom
         # desired format
         filtered_message: str = filter_datum(self.fields,
-                                            self.REDACTION,
-                                            message,
-                                            self.SEPARATOR)
+                                             self.REDACTION,
+                                             message,
+                                             self.SEPARATOR)
         return filtered_message
 
 
