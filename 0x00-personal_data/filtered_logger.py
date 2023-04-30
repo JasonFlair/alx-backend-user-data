@@ -66,11 +66,13 @@ class RedactingFormatter(logging.Formatter):
         is different from format passed to logging.Formatter
         """
         message: str = super().format(record)
-        filtered_record: str = filter_datum(self.fields,
+        # filter the returned record using the custom
+        # desired format
+        filtered_message: str = filter_datum(self.fields,
                                             self.REDACTION,
                                             message,
                                             self.SEPARATOR)
-        return filtered_record
+        return filtered_message
 
 
 def get_logger() -> logging.Logger:
