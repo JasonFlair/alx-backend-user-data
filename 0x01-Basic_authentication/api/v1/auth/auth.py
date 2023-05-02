@@ -9,7 +9,10 @@ class Auth:
     """Authentication class"""
 
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """require auth function"""
+        """Define which routes don't need authentication
+        exluded paths do not require authentication
+        if function returns true, path is not in excluded path
+        so it requires authentication"""
         if path is not None:
             if path[-1] != "/":
                 path = path + "/"  # include the last slash
@@ -20,11 +23,16 @@ class Auth:
         if path not in excluded_paths:
             return True
         elif path in excluded_paths:
-            return False
+            return False  # does not need authentication
 
     def authorization_header(self, request=None) -> str:
         """authorization header function"""
-        return None
+        if request is None:
+            return None
+        elif request.headers.get("Authorization") is None:
+            return None
+        else:
+            return request.headers.get("Authorization")
 
     def current_user(self, request=None) -> str:
         """current user function"""
