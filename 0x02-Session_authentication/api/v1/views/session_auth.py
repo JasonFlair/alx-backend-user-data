@@ -17,3 +17,6 @@ def session_auth_route(request):
     if password is None:
         return make_response(jsonify({"error": "password missing"}), 400)
     user = User.search({"email": email})
+    if user is None:
+        return make_response(jsonify({"error": "no user found for this email"}), 404)
+    
