@@ -18,6 +18,11 @@ AUTH_TYPE = os.getenv("AUTH_TYPE")
 if AUTH_TYPE == "basic_auth":
     from api.v1.auth.basic_auth import BasicAuth
     auth = BasicAuth()
+
+if AUTH_TYPE == "session_auth":
+    from api.v1.auth.session_auth import SessionAuth
+    auth = SessionAuth()
+
 if AUTH_TYPE == "auth":
     from api.v1.auth.auth import Auth
     auth = Auth()
@@ -49,20 +54,22 @@ def checking_auth() -> None:
         return
     allowed_paths = ['/api/v1/status/',
                      '/api/v1/unauthorized/',
-                     '/api/v1/forbidden/']
+                     '/api/v1/forbidden/',
+                     '/api/v1/auth_session/login/']
     requires_auth = auth.require_auth(request.path, allowed_paths)
     if requires_auth is False:  # if it does not require authentication
         pass
     else:
         # check that an auth header is present
         authorization_header = auth.authorization_header(request)
-        if authorization_header is None:
+        session_cookie = auth.session_cookie(request)
+        if authorization_header is None and session_cookie is None:
             abort(401)
 
         # if auth header is present, check that the
         # current user is allowed
-        authorized_user_check = auth.current_user(request)
-        if authorized_user_check is None:
+        request.current_user = auth.current_user(request)
+        if request.current_user is None:
             abort(403)
 
 

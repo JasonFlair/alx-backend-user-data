@@ -3,6 +3,9 @@
 
 from typing import List
 from flask import request
+import os
+
+SESSION_NAME = os.getenv("SESSION_NAME")
 
 
 class Auth:
@@ -37,3 +40,10 @@ class Auth:
     def current_user(self, request=None) -> str:
         """current user function"""
         return None
+
+    def session_cookie(self, request=None):
+        """that returns a cookie value
+        from a request"""
+        if request is None:
+            return None
+        return request.cookies.get(SESSION_NAME)
