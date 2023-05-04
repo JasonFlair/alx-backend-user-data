@@ -3,6 +3,7 @@
 from typing import Tuple, TypeVar
 from .auth import Auth
 from uuid import uuid4
+from api.v1.views.users import User
 
 
 class SessionAuth(Auth):
@@ -42,4 +43,5 @@ class SessionAuth(Auth):
         based on a cookie value"""
         session_cookie = self.session_cookie(request)
         user_id = self.user_id_by_session_id.get(session_cookie)
-        return user_id
+        user = User.get(user_id)
+        return user
