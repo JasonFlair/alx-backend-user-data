@@ -56,7 +56,13 @@ class DB:
                     **kwargs: Dict[str, Any]) -> None:
         """updates desired user specified by user id"""
         for k, v in kwargs.items():
-            found_user = self.find_user_by(id=user_id)
+            try:
+                found_user = self.find_user_by(id=user_id)
+            except NoResultFound:
+                raise NoResultFound
             # set attribute of the found user
-            setattr(found_user, k, v)
-            self._session.commit()
+            if hasattr(found_user, k):
+                setattr(found_user, k, v)
+            else:
+                raise ValueError
+        self._session.commit()
