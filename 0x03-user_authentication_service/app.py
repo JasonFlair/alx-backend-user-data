@@ -80,7 +80,7 @@ def profile() -> str:
     user_with_session = AUTH.get_user_from_session_id(session_id)
     if user_with_session is None:
         abort(403)
-    resp = make_response(jsonify({"email": "{}".format(user_with_session.email)}, 200))
+    resp = make_response(jsonify({"email": user_with_session.email}, 200))
     return resp
 
 
