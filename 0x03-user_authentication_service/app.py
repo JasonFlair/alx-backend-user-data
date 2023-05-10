@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Basic Flask App"""
-from flask import Flask, jsonify, make_response, request, abort
+from flask import Flask, jsonify, make_response, redirect, request, abort
 from auth import Auth
 app = Flask(__name__)
 AUTH = Auth()
@@ -34,7 +34,7 @@ def users():
 
 @app.route("/sessions", methods=["POST"],
            strict_slashes=False)
-def login():
+def login() -> str:
     """login function"""
     try:
         data = request.form
@@ -60,26 +60,27 @@ def login():
            strict_slashes=False)
 def logout():
     """logout function"""
-    session_id = request.cookies.get("session_id")
+    session_id = request.cookies.get("session_id", None)
     user_with_session = AUTH.get_user_from_session_id(session_id)
-    if user_with_session is None:
+    if user_with_session is None or session_id is None:
         abort(403)
 
     # destroy the session by
     # updating the corresponding user's session ID to None
     AUTH.destroy_session(user_with_session.id)
+    return redirect("/")
 
 
 @app.route("/profile", methods=["GET"],
            strict_slashes=False)
-def profile():
+def profile() -> str:
     """profile function to respond to the GET /profile route."""
     session_id = request.cookies.get("session_id")
     print(session_id)
     user_with_session = AUTH.get_user_from_session_id(session_id)
     if user_with_session is None:
         abort(403)
-    resp = make_response(jsonify({"email": user_with_session.email}, 200))
+    resp = make_response(jsonify({"email": "{}".format(user_with_session.email)}, 200))
     return resp
 
 
