@@ -56,18 +56,16 @@ def login() -> str:
         abort(401)
 
 
-@app.route("/sessions", methods=["DELETE"],
-           strict_slashes=False)
+@app.route("/sessions", methods=["DELETE"], strict_slashes=False)
 def logout():
-    """logout function"""
+    """
+    Log out a logged in user and destroy their session
+    """
     session_id = request.cookies.get("session_id", None)
-    user_with_session = AUTH.get_user_from_session_id(session_id)
-    if user_with_session is None or session_id is None:
+    user = AUTH.get_user_from_session_id(session_id)
+    if user is None or session_id is None:
         abort(403)
-
-    # destroy the session by
-    # updating the corresponding user's session ID to None
-    AUTH.destroy_session(user_with_session.id)
+    AUTH.destroy_session(user.id)
     return redirect("/")
 
 
