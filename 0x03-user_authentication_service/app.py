@@ -91,9 +91,9 @@ def get_reset_password_token():
         data = request.form
         email = data.get("email")
         registered_user = AUTH._db.find_user_by(email=email)
-        AUTH.get_reset_password_token(email)
+        reset_token = AUTH.get_reset_password_token(email)
         return jsonify({"email": email,
-                        "reset_token": registered_user.reset_token}), 200
+                        "reset_token": reset_token}), 200
 
     except ValueError:
         abort(403)
