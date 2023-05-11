@@ -102,7 +102,24 @@ def get_reset_password_token():
            strict_slashes=False)
 def update_password():
     """update password endpoint"""
-    
+    try:
+        # get data from request form
+        data = request.form
+        email = data.get("email")
+        new_password = data.get("password")
+        reset_token = data.get("reset_token")
+        
+        # check if the request token is valid by
+        # finding the user with said token
+        AUTH._db.find_user_by(reset_token=reset_token)
+        
+        #update the password
+        AUTH.update_password(reset_token, new_password)
+        return jsonify({"email": email,
+                        "message": "Password updated"}), 200
+
+    except Exception:
+        abort(403)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
