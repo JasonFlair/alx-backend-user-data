@@ -56,16 +56,18 @@ def login() -> str:
         abort(401)
 
 
-@app.route("/sessions", methods=["DELETE"], strict_slashes=False)
+@app.route("/sessions", methods=["DELETE"],
+           strict_slashes=False)
 def logout():
-    """
-    Log out a logged in user and destroy their session
-    """
+    """logout function"""
     session_id = request.cookies.get("session_id", None)
-    user = AUTH.get_user_from_session_id(session_id)
-    if user is None or session_id is None:
+    user_with_session = AUTH.get_user_from_session_id(session_id)
+    if user_with_session is None or session_id is None:
         abort(403)
-    AUTH.destroy_session(user.id)
+
+    # destroy the session by
+    # updating the corresponding user's session ID to None
+    AUTH.destroy_session(user_with_session.id)
     return redirect("/")
 
 
@@ -80,6 +82,27 @@ def profile() -> str:
     resp = jsonify({"email": user_with_session.email}), 200
     return resp
 
+
+@app.route("/reset_password", methods=["POST"],
+           strict_slashes=False)
+def get_reset_password_token():
+    """get reset password token"""
+    try:
+        data = request.form
+        email = data.get("email")
+        registered_user = AUTH._db.find_user_by(email=email)
+        AUTH.get_reset_password_token(registered_user.email)
+        return jsonify({"email": registered_user.email,
+                        "reset_token": registered_user.reset_token}), 200
+
+    except Exception:
+        abort(403)
+
+@app.route("/reset_password", methods=["PUT"],
+           strict_slashes=False)
+def update_password():
+    """update password endpoint"""
+    
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="5000")
