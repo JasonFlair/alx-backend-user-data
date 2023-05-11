@@ -85,7 +85,7 @@ class Auth:
         except ValueError:
             return None
         return None
-    
+
     def get_reset_password_token(self, email) -> None:
         """creates reset token
         and updates the user's reset_token"""
@@ -95,9 +95,9 @@ class Auth:
             self._db.update_user(user.id, reset_token=reset_token)
         except NoResultFound:
             raise ValueError
-        
+
     def update_password(self, reset_token: str,
-                        password:str) -> None:
+                        password: str) -> None:
         """updates user password"""
         try:
             registered_user = self._db.find_user_by(reset_token=reset_token)
